@@ -14,48 +14,69 @@ import org.testng.asserts.SoftAssert;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 
-public class ProductTests extends BaseTest{
-	LoginPage loginPage;
-	ProductsPage productsPage;
-	SettingsPage settingsPage;
-	ProductDetailsPage productDetailsPage;
-	JSONObject loginUsers;
-	TestUtils utils = new TestUtils();
-	
-	  @BeforeClass
-	  public void beforeClass() throws Exception {
-			InputStream datais = null;
-		  try {
-			  String dataFileName = "data/loginUsers.json";
-			  datais = getClass().getClassLoader().getResourceAsStream(dataFileName);
-			  JSONTokener tokener = new JSONTokener(datais);
-			  loginUsers = new JSONObject(tokener);
-		  } catch(Exception e) {
-			  e.printStackTrace();
-			  throw e;
-		  } finally {
-			  if(datais != null) {
-				  datais.close();
-			  }
-		  }
+/**
+ * This class contains test methods for Product related functionalities.
+ */
+public class ProductTests extends BaseTest {
+    LoginPage loginPage;
+    ProductsPage productsPage;
+    SettingsPage settingsPage;
+    ProductDetailsPage productDetailsPage;
+    JSONObject loginUsers;
+    TestUtils utils = new TestUtils();
+
+    /**
+     * Runs before the class starts.
+     * <p>
+     * Reads login user data from a JSON file and stores it in a JSONObject.
+     *
+     * @throws Exception If there is an error reading the JSON file.
+     */
+    @BeforeClass
+    public void beforeClass() throws Exception {
+        InputStream datais = null;
+        try {
+            String dataFileName = "data/loginUsers.json";
+            datais = getClass().getClassLoader().getResourceAsStream(dataFileName);
+            JSONTokener tokener = new JSONTokener(datais);
+            loginUsers = new JSONObject(tokener);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            if (datais != null) {
+                datais.close();
+            }
+        }
 		  /*
 		  To ensure each test starts with a fresh app state, closeApp() and launchApp() have been moved to the
 		  @BeforeMethod section.
 		  // closeApp();
 		  // launchApp();
 		  */
-	  }
+    }
 
-	  @AfterClass
-	  public void afterClass() {
-	  }
-	  
-	  @BeforeMethod
-	  public void beforeMethod(Method m) {
-		  closeApp();
-		  launchApp();
+    /**
+     * Runs after the class has finished.
+     */
+    @AfterClass
+    public void afterClass() {
+    }
 
-		  utils.log().info("\n" + "****** starting test:" + m.getName() + "******" + "\n");
+    /**
+     * Runs before each test method.
+     * <p>
+     * Closes and relaunches the app to ensure a fresh state for each test,
+     * and logs the starting of the test.
+     *
+     * @param m The Method object representing the current test method.
+     */
+    @BeforeMethod
+    public void beforeMethod(Method m) {
+        closeApp();
+        launchApp();
+
+        utils.log().info("\n" + "****** starting test:" + m.getName() + "******" + "\n");
 
 		/*
 		The following commented code was moved to individual test methods to solve the problem:
@@ -77,60 +98,74 @@ public class ProductTests extends BaseTest{
 		// productsPage = loginPage.login(loginUsers.getJSONObject("validUser").getString("username"),
 		//              loginUsers.getJSONObject("validUser").getString("password"));
 		*/
-	  }
+    }
 
-	  @AfterMethod
-	  public void afterMethod() {
+    /**
+     * Runs after each test method.
+     */
+    @AfterMethod
+    public void afterMethod() {
 		/*
 		The code below is no longer needed because closeApp() and launchApp() have been moved to @BeforeMethod:
 		// settingsPage = productsPage.pressSettingsBtn();
 		// loginPage = settingsPage.pressLogoutBtn();
 		*/
-	  }
-	  
-	  @Test
-	  public void validateProductOnProductsPage() {
-		  loginPage = new LoginPage();
-		  productsPage = loginPage.login(loginUsers.getJSONObject("validUser").getString("username"),
-				  loginUsers.getJSONObject("validUser").getString("password"));
+    }
 
-		  SoftAssert sa = new SoftAssert();
-		  
-		  String SLBTitle = productsPage.getSLBTitle();
-		  sa.assertEquals(SLBTitle, getStrings().get("products_page_slb_title"));
-		  
-		  String SLBPrice = productsPage.getSLBPrice();
-		  sa.assertEquals(SLBPrice, getStrings().get("products_page_slb_price"));
-		  
-		  sa.assertAll();
-	  }
-	  
-	  @Test
-	  public void validateProductOnProductDetailsPage() {
-		  loginPage = new LoginPage();
-		  productsPage = loginPage.login(loginUsers.getJSONObject("validUser").getString("username"),
-				  loginUsers.getJSONObject("validUser").getString("password"));
+    /**
+     * Validates product information on the Products Page.
+     * <p>
+     * Logs in with a valid user and verifies the title and price of the Sauce Labs Backpack.
+     */
+    @Test
+    public void validateProductOnProductsPage() {
+        loginPage = new LoginPage();
+        productsPage = loginPage.login(loginUsers.getJSONObject("validUser").getString("username"),
+                loginUsers.getJSONObject("validUser").getString("password"));
 
-		  SoftAssert sa = new SoftAssert();
-		  
-		  productDetailsPage = productsPage.pressSLBTitle();
-		  		  
-		  String SLBTitle = productDetailsPage.getSLBTitle();
-		  sa.assertEquals(SLBTitle, getStrings().get("product_details_page_slb_title"));
-		  		  
-		  if(getPlatform().equalsIgnoreCase("Android")) {
-			  String SLBPrice = productDetailsPage.scrollToSLBPriceAndGetSLBPrice();
-			  sa.assertEquals(SLBPrice, getStrings().get("product_details_page_slb_price"));  
-		  }
-		  if(getPlatform().equalsIgnoreCase("iOS")) {			  
-			  String SLBTxt = productDetailsPage.getSLBTxt();
-			  sa.assertEquals(SLBTxt, getStrings().get("product_details_page_slb_txt"));
-			  
-			  productDetailsPage.scrollPage();
-			  sa.assertTrue(productDetailsPage.isAddToCartBtnDisplayed());  
-		  }		  		  
+        SoftAssert sa = new SoftAssert();
+
+        String SLBTitle = productsPage.getSLBTitle();
+        sa.assertEquals(SLBTitle, getStrings().get("products_page_slb_title"));
+
+        String SLBPrice = productsPage.getSLBPrice();
+        sa.assertEquals(SLBPrice, getStrings().get("products_page_slb_price"));
+
+        sa.assertAll();
+    }
+
+    /**
+     * Validates product information on the Product Details Page.
+     * <p>
+     * Logs in with a valid user, navigates to the Product Details Page for the Sauce Labs Backpack,
+     * and verifies the title, price (Android), text description (iOS), and "Add To Cart" button (iOS).
+     */
+    @Test
+    public void validateProductOnProductDetailsPage() {
+        loginPage = new LoginPage();
+        productsPage = loginPage.login(loginUsers.getJSONObject("validUser").getString("username"),
+                loginUsers.getJSONObject("validUser").getString("password"));
+
+        SoftAssert sa = new SoftAssert();
+
+        productDetailsPage = productsPage.pressSLBTitle();
+
+        String SLBTitle = productDetailsPage.getSLBTitle();
+        sa.assertEquals(SLBTitle, getStrings().get("product_details_page_slb_title"));
+
+        if (getPlatform().equalsIgnoreCase("Android")) {
+            String SLBPrice = productDetailsPage.scrollToSLBPriceAndGetSLBPrice();
+            sa.assertEquals(SLBPrice, getStrings().get("product_details_page_slb_price"));
+        }
+        if (getPlatform().equalsIgnoreCase("iOS")) {
+            String SLBTxt = productDetailsPage.getSLBTxt();
+            sa.assertEquals(SLBTxt, getStrings().get("product_details_page_slb_txt"));
+
+            productDetailsPage.scrollPage();
+            sa.assertTrue(productDetailsPage.isAddToCartBtnDisplayed());
+        }
 //		  productsPage = productDetailsPage.pressBackToProductsBtn(); // -> Commented as this is causing stale element exception for the Settings icon
-		  
-		  sa.assertAll();
-	  }
+
+        sa.assertAll();
+    }
 }
